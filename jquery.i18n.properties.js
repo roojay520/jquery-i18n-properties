@@ -4,7 +4,7 @@
  * Dual licensed under the GPL (http://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt) and
  * MIT (http://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt) licenses.
  *
- * @version     1.2.7
+ * @version     1.2.7.2
  * @url         https://github.com/jquery-i18n-properties/jquery-i18n-properties
  * @inspiration Localisation assistance for jQuery (http://keith-wood.name/localisation.html)
  *              by Keith Wood (kbwood{at}iinet.com.au) June 2007
@@ -148,7 +148,7 @@
         }
 
         var value = (namespace) ? $.i18n.map[namespace][key] : $.i18n.map[key];
-        if (value === null) {
+        if (value === null || typeof value === 'undefined') {
             return '[' + ((namespace) ? namespace + '#' + key : key) + ']';
         }
 
@@ -338,6 +338,10 @@
                 async: settings.async,
                 cache: settings.cache,
                 dataType: 'text',
+                contentType: 'Content-type: text/plain; charset=' + settings.encoding,
+                beforeSend: function(jqXHR) {
+                    jqXHR.overrideMimeType('text/html;charset=' + settings.encoding);
+                },
                 success: function (data, status) {
 
                     if (settings.debug) {
@@ -383,7 +387,7 @@
                     // process multi-line values
                     while (value.search(/\\$/) != -1) {
                         value = value.substring(0, value.length - 1);
-                        value += lines[++i].trimRight();
+			value += lines[++i].replace(/\s+$/,"");
                     }
                     // Put values with embedded '='s back together
                     for (var s = 2; s < pair.length; s++) {
